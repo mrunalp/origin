@@ -21,4 +21,28 @@ yum install -y docker-io git golang e2fsprogs hg openvswitch net-tools bridge-ut
 echo "Building openshift"
 pushd /vagrant
   ./hack/build-go.sh
+  cp _output/go/bin/openshift /usr/bin
+  ./hack/install-etcd.sh
 popd
+
+# create service and start the node
+cat <<EOF > /etc/sysconfig/openshift
+OPENSHIFT_MASTER=$MASTER_IP
+OPENSHIFT_BIND_ADDR=$MASTER_IP
+EOF
+
+cat <<EOF > /usr/lib/systemd/system/openshift-master.service
+[Unit]
+Description=openshift master
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/openshift
+ExecStart=/usr/bin/openshift start
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable openshift-master.service
+systemctl start openshift-master.service
