@@ -14,8 +14,8 @@ for (( i=0; i<${#MINION_NAMES[@]}; i++)); do
   fi
 done
 
-#yum update -y
-yum install -y docker-io git golang e2fsprogs hg openvswitch net-tools bridge-utils
+# Install the required packages
+yum install -y docker-io git golang e2fsprogs hg net-tools bridge-utils
 
 # Build openshift
 echo "Building openshift"
@@ -25,7 +25,7 @@ pushd /vagrant
   ./hack/install-etcd.sh
 popd
 
-# create service and start the node
+# Create systemd service
 cat <<EOF > /etc/sysconfig/openshift
 OPENSHIFT_MASTER=$MASTER_IP
 OPENSHIFT_BIND_ADDR=$MASTER_IP
@@ -43,6 +43,7 @@ ExecStart=/usr/bin/openshift start
 WantedBy=multi-user.target
 EOF
 
+# Start the service
 systemctl daemon-reload
 systemctl enable openshift-master.service
 systemctl start openshift-master.service

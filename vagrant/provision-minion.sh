@@ -21,7 +21,7 @@ for (( i=0; i<${#MINION_NAMES[@]}; i++)); do
   fi  
 done
 
-#yum update -y
+# Install the required packages
 yum install -y docker-io git golang e2fsprogs hg openvswitch net-tools bridge-utils
 
 # Build openshift
@@ -31,10 +31,10 @@ pushd /vagrant
   cp _output/go/bin/openshift /usr/bin
 popd
 
-# run the networking setup
+# Setup networking between the nodes
 $(dirname $0)/provision-network.sh $@
 
-# create service and start the node
+# Create systemd service
 cat <<EOF > /etc/sysconfig/openshift
 OPENSHIFT_MASTER=$MASTER_IP
 OPENSHIFT_BIND_ADDR=$MINION_IP
@@ -52,6 +52,7 @@ ExecStart=/usr/bin/openshift start
 WantedBy=multi-user.target
 EOF
 
+# Start the service
 systemctl daemon-reload
 systemctl enable openshift-node.service
 systemctl start openshift-node.service
