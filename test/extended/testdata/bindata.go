@@ -89,6 +89,7 @@
 // test/extended/testdata/builds/valuefrom/test-configmap.yaml
 // test/extended/testdata/builds/valuefrom/test-is.json
 // test/extended/testdata/builds/valuefrom/test-secret.yaml
+// test/extended/testdata/cli/echo-pod.yaml
 // test/extended/testdata/cluster/master-vert.yaml
 // test/extended/testdata/config-map-jenkins-slave-pods.yaml
 // test/extended/testdata/custom-secret-builder/Dockerfile
@@ -4690,6 +4691,42 @@ func testExtendedTestdataBuildsValuefromTestSecretYaml() (*asset, error) {
 	return a, nil
 }
 
+var _testExtendedTestdataCliEchoPodYaml = []byte(`apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod
+spec:
+  restartPolicy: Never
+  containers:
+  - name: test
+    image: centos:centos7
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      sleep 15  # give some time for the test logic to be set up
+      echo line 1
+      sleep 1
+      echo line 2
+      echo line 3
+`)
+
+func testExtendedTestdataCliEchoPodYamlBytes() ([]byte, error) {
+	return _testExtendedTestdataCliEchoPodYaml, nil
+}
+
+func testExtendedTestdataCliEchoPodYaml() (*asset, error) {
+	bytes, err := testExtendedTestdataCliEchoPodYamlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "test/extended/testdata/cli/echo-pod.yaml", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 var _testExtendedTestdataClusterMasterVertYaml = []byte(`provider: local
 ClusterLoader:
   cleanup: true
@@ -4939,7 +4976,7 @@ spec:
         name: myapp
         command:
         - /bin/sleep
-        - "10"
+        - "infinity"
   triggers:
   - type: ConfigChange
 `)
@@ -34393,6 +34430,7 @@ var _bindata = map[string]func() (*asset, error){
 	"test/extended/testdata/builds/valuefrom/test-configmap.yaml": testExtendedTestdataBuildsValuefromTestConfigmapYaml,
 	"test/extended/testdata/builds/valuefrom/test-is.json": testExtendedTestdataBuildsValuefromTestIsJson,
 	"test/extended/testdata/builds/valuefrom/test-secret.yaml": testExtendedTestdataBuildsValuefromTestSecretYaml,
+	"test/extended/testdata/cli/echo-pod.yaml": testExtendedTestdataCliEchoPodYaml,
 	"test/extended/testdata/cluster/master-vert.yaml": testExtendedTestdataClusterMasterVertYaml,
 	"test/extended/testdata/config-map-jenkins-slave-pods.yaml": testExtendedTestdataConfigMapJenkinsSlavePodsYaml,
 	"test/extended/testdata/custom-secret-builder/Dockerfile": testExtendedTestdataCustomSecretBuilderDockerfile,
@@ -34886,6 +34924,9 @@ var _bintree = &bintree{nil, map[string]*bintree{
 						"test-is.json": &bintree{testExtendedTestdataBuildsValuefromTestIsJson, map[string]*bintree{}},
 						"test-secret.yaml": &bintree{testExtendedTestdataBuildsValuefromTestSecretYaml, map[string]*bintree{}},
 					}},
+				}},
+				"cli": &bintree{nil, map[string]*bintree{
+					"echo-pod.yaml": &bintree{testExtendedTestdataCliEchoPodYaml, map[string]*bintree{}},
 				}},
 				"cluster": &bintree{nil, map[string]*bintree{
 					"master-vert.yaml": &bintree{testExtendedTestdataClusterMasterVertYaml, map[string]*bintree{}},
