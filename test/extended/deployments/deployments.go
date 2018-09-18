@@ -215,7 +215,7 @@ var _ = g.Describe("[Feature:DeploymentConfig] deploymentconfigs", func() {
 			o.Expect(err).NotTo(o.HaveOccurred())
 
 			g.By(fmt.Sprintf("by checking that the second deployment exists"))
-			err = wait.PollImmediate(500*time.Millisecond, 30*time.Second, func() (bool, error) {
+			err = wait.PollImmediate(500*time.Millisecond, 50*time.Second, func() (bool, error) {
 				_, rcs, _, err := deploymentInfo(oc, dcName)
 				if err != nil {
 					return false, nil
@@ -577,6 +577,7339 @@ var _ = g.Describe("[Feature:DeploymentConfig] deploymentconfigs", func() {
 	})
 
 	g.Describe("with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("1 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+	g.Describe("2 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("3 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("11 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("12 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("13 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("14 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("15 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("16 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("17 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("18 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("19 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("20 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("21 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("22 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("23 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("24 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("25 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("26 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("27 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("28 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("29 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("30 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("31 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("32 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("33 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("34 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("35 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("36 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("37 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("38 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("39 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("40 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("41 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("42 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("43 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("44 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("45 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("46 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("47 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("48 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("49 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("50 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("51 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("52 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("53 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("54 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("55 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("56 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("57 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("58 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("59 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("60 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("61 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("62 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("63 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("64 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("65 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("66 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("67 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("68 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("69 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("70 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("71 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("72 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("73 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("74 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("75 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("76 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("77 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("78 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("79 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("80 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("81 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("82 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("83 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("84 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("85 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("86 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("87 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("88 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("89 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("90 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("91 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("92 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("93 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("94 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("95 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("96 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("97 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("98 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("99 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("100 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("101 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("102 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("103 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("104 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("105 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("106 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("107 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("108 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("109 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("110 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("111 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("112 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("113 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("114 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("115 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("116 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("117 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("118 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("119 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("120 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("121 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("122 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("123 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("124 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("125 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("126 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("127 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("128 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("129 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("130 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("131 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("132 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("133 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("134 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("135 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("136 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("137 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("138 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("139 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("140 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("141 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("142 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("143 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("144 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("145 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("146 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("147 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("148 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("149 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("150 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("151 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("152 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("153 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("154 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("155 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("156 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("157 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("158 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("159 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("160 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("161 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("162 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("163 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("164 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("165 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("166 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("167 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("168 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("169 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("170 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("171 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("172 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("173 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("174 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("175 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("176 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("177 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("178 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("179 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("180 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("181 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("182 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("183 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("184 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("185 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("186 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("187 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("188 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("189 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("190 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("191 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("192 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("193 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("194 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("195 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("196 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("197 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("198 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("199 with custom deployments [Conformance]", func() {
+		dcName := "custom-deployment"
+		g.AfterEach(func() {
+			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
+		})
+
+		g.It("should run the custom deployment steps", func() {
+			namespace := oc.Namespace()
+
+			dc, err := readDCFixture(customDeploymentFixture)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+
+			dc, err = oc.AppsClient().AppsV1().DeploymentConfigs(namespace).Create(dc)
+			o.Expect(err).NotTo(o.HaveOccurred())
+			o.Expect(dc.Name).To(o.Equal(dcName))
+			e2e.Logf("created DC, creationTimestamp: %v", dc.CreationTimestamp)
+
+			o.Expect(waitForLatestCondition(oc, dcName, deploymentRunTimeout, deploymentRunning)).NotTo(o.HaveOccurred())
+
+			out, err := oc.Run("logs").Args("--follow", "dc/custom-deployment").Output()
+			o.Expect(err).NotTo(o.HaveOccurred())
+			e2e.Logf("oc logs finished")
+
+			e2e.Logf("verifying the deployment is marked complete")
+			o.Expect(waitForLatestCondition(oc, "custom-deployment", deploymentRunTimeout, deploymentReachedCompletion)).NotTo(o.HaveOccurred())
+
+			e2e.Logf("checking the logs for substrings\n%s", out)
+			o.Expect(out).To(o.ContainSubstring("--> pre: Running hook pod ..."))
+			o.Expect(out).To(o.ContainSubstring("test pre hook executed"))
+			o.Expect(out).To(o.ContainSubstring("--> Scaling custom-deployment-1 to 2"))
+			o.Expect(out).To(o.ContainSubstring("--> Reached 50%"))
+			o.Expect(out).To(o.ContainSubstring("Halfway"))
+			o.Expect(out).To(o.ContainSubstring("Finished"))
+			o.Expect(out).To(o.ContainSubstring("--> Success"))
+		})
+	})
+
+	g.Describe("200 with custom deployments [Conformance]", func() {
 		dcName := "custom-deployment"
 		g.AfterEach(func() {
 			failureTrap(oc, dcName, g.CurrentGinkgoTestDescription().Failed)
